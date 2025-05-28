@@ -1,7 +1,9 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -22,23 +24,40 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
 
 const signInSchema = z.object({
-  name: z.string().trim().min(1, "Nome é obrigatório"),
+  email: z.string().trim().email("Informe um email válido"),
   password: z.string().trim().min(8, "Senha deve ter pelo menos 8 caracteres"),
 });
 
 const SignInForm = () => {
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof signInSchema>>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
-      name: "",
+      email: "",
       password: "",
     },
   });
 
   const onSubmit = (data: z.infer<typeof signInSchema>) => {
-    console.log("Form submitted:", data);
+    authClient.signIn.email(
+      {
+        email: data.email,
+        password: data.password,
+      },
+
+      {
+        onSuccess: () => {
+          router.push("/dashboard");
+        },
+        onError: () => {
+          toast.error("E-mail ou senha inválidos");
+        },
+      },
+    );
   };
 
   return (
@@ -54,12 +73,12 @@ const SignInForm = () => {
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
-              name="name"
+              name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Nome</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
-                    <Input placeholder="shadcn" {...field} />
+                    <Input placeholder="email@gmail.com" {...field} />
                   </FormControl>
 
                   <FormMessage />
