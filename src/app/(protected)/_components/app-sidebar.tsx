@@ -12,6 +12,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -29,6 +30,7 @@ import {
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
+  SidebarMenuSubButton,
 } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 
@@ -58,6 +60,9 @@ const items = [
 
 export const AppSidebar = () => {
   const router = useRouter();
+
+  const session = authClient.useSession();
+
   const handleSignOut = async () => {
     await authClient.signOut({
       fetchOptions: {
@@ -106,14 +111,19 @@ export const AppSidebar = () => {
           <SidebarMenuItem>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button
-                  onClick={handleSignOut}
-                  variant="ghost"
-                  className="w-full"
-                >
-                  <LogOut />
-                  Sair
-                </Button>
+                <SidebarMenuButton size="lg">
+                  <Avatar>
+                    <AvatarFallback>V</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <p className="text-sm">
+                      {session?.data?.user?.clinic.clinicName}
+                    </p>
+                    <p className="text-muted-foreground text-sm">
+                      {session?.data?.user?.email}
+                    </p>
+                  </div>
+                </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
                 <DropdownMenuItem onClick={handleSignOut}>
