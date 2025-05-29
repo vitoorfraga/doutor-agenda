@@ -10,6 +10,7 @@ import { useAction } from "next-safe-action/hooks";
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { deleteDoctor } from "@/actions/delete-doctor";
 // import { deleteDoctor } from "@/actions/delete-doctor";
 import {
   AlertDialog,
@@ -46,18 +47,18 @@ interface DoctorCardProps {
 export const DoctorCard = ({ doctor }: DoctorCardProps) => {
   const [isUpsertDoctorDialogOpen, setIsUpsertDoctorDialogOpen] =
     useState(false);
-  //   const deleteDoctorAction = useAction(deleteDoctor, {
-  //     onSuccess: () => {
-  //       toast.success("Médico deletado com sucesso.");
-  //     },
-  //     onError: () => {
-  //       toast.error("Erro ao deletar médico.");
-  //     },
-  //   });
-  //   const handleDeleteDoctorClick = () => {
-  //     if (!doctor) return;
-  //     deleteDoctorAction.execute({ id: doctor.id });
-  //   };
+  const deleteDoctorAction = useAction(deleteDoctor, {
+    onSuccess: () => {
+      toast.success("Médico deletado com sucesso.");
+    },
+    onError: () => {
+      toast.error("Erro ao deletar médico.");
+    },
+  });
+  const handleDeleteDoctorClick = () => {
+    if (!doctor) return;
+    deleteDoctorAction.execute({ id: doctor.id });
+  };
 
   const doctorInitials = doctor.name
     .split(" ")
@@ -131,11 +132,8 @@ export const DoctorCard = ({ doctor }: DoctorCardProps) => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>Cancelar</AlertDialogCancel>
-              <AlertDialogAction>
+              <AlertDialogAction onClick={handleDeleteDoctorClick}>
                 Deletar
-                {/* </AlertDialogAction>
-                            <AlertDialogAction onClick={handleDeleteDoctorClick}>
-                Deletar */}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

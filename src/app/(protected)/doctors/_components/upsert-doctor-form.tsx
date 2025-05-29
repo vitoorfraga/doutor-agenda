@@ -129,7 +129,7 @@ const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
               <FormItem>
                 <FormLabel>Nome</FormLabel>
                 <FormControl>
-                  <Input {...field} />
+                  <Input {...field} placeholder="Digite o nome do médico" />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -169,10 +169,11 @@ const UpsertDoctorForm = ({ doctor, onSuccess }: UpsertDoctorFormProps) => {
               <FormItem>
                 <FormLabel>Preço da consulta</FormLabel>
                 <NumericFormat
-                  value={field.value}
+                  value={field.value || ""}
                   onValueChange={(value) => {
-                    field.onChange(value.floatValue);
+                    field.onChange(value.floatValue || 0);
                   }}
+                  placeholder="R$200,00"
                   decimalScale={2}
                   fixedDecimalScale
                   decimalSeparator=","
