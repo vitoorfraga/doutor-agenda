@@ -28,14 +28,16 @@ export const auth = betterAuth({
       });
 
       // TODO: Adaptar para o usuário ter mais de uma clínica.
-      const clinic = clinics[0];
+      const clinic = clinics?.[0];
       return {
         user: {
           ...user,
-          clinic: {
-            clinicId: clinic?.clinicId ?? null,
-            clinicName: clinic?.clinic.name ?? null,
-          },
+          clinic: clinic.clinicId
+            ? {
+                clinicId: clinic?.clinicId ?? null,
+                clinicName: clinic?.clinic.name ?? null,
+              }
+            : undefined,
         },
         session,
       };

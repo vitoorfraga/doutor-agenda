@@ -115,7 +115,7 @@ export const AppSidebar = () => {
                   </Avatar>
                   <div>
                     <p className="text-sm">
-                      {session?.data?.user?.clinic.clinicName}
+                      {session?.data?.user?.clinic?.clinicName}
                     </p>
                     <p className="text-muted-foreground text-sm">
                       {session?.data?.user?.email}
