@@ -7,7 +7,7 @@ import UpsertDoctorForm from "./upsert-doctor-form";
 
 export const AddDoctorButton = () => {
   return (
-    <Dialog open>
+    <Dialog>
       <DialogTrigger asChild>
         <Button>
           <Plus />
