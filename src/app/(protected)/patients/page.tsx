@@ -47,7 +47,6 @@ const PatientsPage = async () => {
         </PageActions>
       </PageHeader>
       <PageContent>
-        Teste
         <DataTable data={patients} columns={patientsTableColumns} />
       </PageContent>
     </PageContainer>
