@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useAction } from "next-safe-action/hooks";
+import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { PatternFormat } from "react-number-format";
 import { toast } from "sonner";
@@ -41,20 +42,25 @@ const formSchema = z.object({
   email: z.string().email({
     message: "Email inválido.",
   }),
-  phoneNumber: z.string().min(1, {
+  phoneNumber: z.string().trim().min(1, {
     message: "Número de telefone é obrigatório.",
   }),
   sex: z.enum(["male", "female"], {
-    errorMap: () => ({ message: "Sexo é obrigatório." }),
+    required_error: "Sexo é obrigatório.",
   }),
 });
 
 interface UpsertPatientFormProps {
+  isOpen: boolean;
   patient?: typeof patientsTable.$inferSelect;
   onSuccess?: () => void;
 }
 
-const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
+const UpsertPatientForm = ({
+  patient,
+  onSuccess,
+  isOpen,
+}: UpsertPatientFormProps) => {
   const form = useForm<z.infer<typeof formSchema>>({
     shouldUnregister: true,
     resolver: zodResolver(formSchema),
@@ -66,29 +72,26 @@ const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
     },
   });
 
+  useEffect(() => {
+    if (isOpen) {
+      form.reset(patient);
+    }
+  }, [isOpen, form, patient]);
+
   const upsertPatientAction = useAction(upsertPatient, {
     onSuccess: () => {
-      toast.success(
-        patient
-          ? "Paciente editado com sucesso."
-          : "Paciente adicionado com sucesso.",
-      );
+      toast.success("Paciente salvo com sucesso.");
       onSuccess?.();
     },
     onError: () => {
-      toast.error(
-        patient ? "Erro ao editar paciente." : "Erro ao adicionar paciente.",
-      );
+      toast.error("Erro ao salvar paciente.");
     },
   });
 
-  const onSubmit = async (data: z.infer<typeof formSchema>) => {
-    await upsertPatientAction.executeAsync({
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    upsertPatientAction.execute({
+      ...values,
       id: patient?.id,
-      name: data.name,
-      email: data.email,
-      phoneNumber: data.phoneNumber,
-      sex: data.sex,
     });
   };
 
@@ -96,15 +99,14 @@ const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
     <DialogContent>
       <DialogHeader>
         <DialogTitle>
-          {patient ? "Editar Paciente" : "Adicionar Paciente"}
+          {patient ? patient.name : "Adicionar paciente"}
         </DialogTitle>
         <DialogDescription>
           {patient
-            ? "Edite as informações do paciente."
-            : "Adicione um novo paciente à sua clínica."}
+            ? "Edite as informações desse paciente."
+            : "Adicione um novo paciente."}
         </DialogDescription>
       </DialogHeader>
-
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
           <FormField
@@ -112,15 +114,17 @@ const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
             name="name"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Nome do Paciente</FormLabel>
+                <FormLabel>Nome do paciente</FormLabel>
                 <FormControl>
-                  <Input placeholder="Digite o nome do paciente" {...field} />
+                  <Input
+                    placeholder="Digite o nome completo do paciente"
+                    {...field}
+                  />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="email"
@@ -130,7 +134,7 @@ const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
                 <FormControl>
                   <Input
                     type="email"
-                    placeholder="Digite o email do paciente"
+                    placeholder="exemplo@email.com"
                     {...field}
                   />
                 </FormControl>
@@ -138,39 +142,40 @@ const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="phoneNumber"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Número do Telefone</FormLabel>
+                <FormLabel>Número de telefone</FormLabel>
                 <FormControl>
                   <PatternFormat
                     format="(##) #####-####"
                     mask="_"
-                    placeholder="(00) 00000-0000"
-                    customInput={Input}
+                    placeholder="(11) 99999-9999"
                     value={field.value}
-                    onValueChange={(values) => {
-                      field.onChange(values.formattedValue);
+                    onValueChange={(value) => {
+                      field.onChange(value.value);
                     }}
+                    customInput={Input}
                   />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-
           <FormField
             control={form.control}
             name="sex"
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Sexo</FormLabel>
-                <Select onValueChange={field.onChange} value={field.value}>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="w-full">
                       <SelectValue placeholder="Selecione o sexo" />
                     </SelectTrigger>
                   </FormControl>
@@ -183,18 +188,13 @@ const UpsertPatientForm = ({ patient, onSuccess }: UpsertPatientFormProps) => {
               </FormItem>
             )}
           />
-
           <DialogFooter>
             <Button
               type="submit"
-              disabled={upsertPatientAction.isExecuting}
+              disabled={upsertPatientAction.isPending}
               className="w-full"
             >
-              {upsertPatientAction.isExecuting
-                ? "Salvando..."
-                : patient
-                  ? "Salvar Alterações"
-                  : "Adicionar Paciente"}
+              {upsertPatientAction.isPending ? "Salvando..." : "Salvar"}
             </Button>
           </DialogFooter>
         </form>
