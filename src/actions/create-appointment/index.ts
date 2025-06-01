@@ -23,11 +23,11 @@ export const createAppointment = actionClient
       throw new Error("Usuário não autenticado.");
     }
 
-    if (!session?.user?.clinic?.clinicId) {
+    if (!session?.user?.clinic?.id) {
       throw new Error("Clínica não encontrada.");
     }
 
-    const clinicId = session.user.clinic.clinicId;
+    const clinicId = session.user.clinic.id;
 
     // Criar o timestamp combinando data e hora
     const dateTimeString = `${dayjs(parsedInput.date).format("YYYY-MM-DD")} ${parsedInput.time}`;
@@ -56,6 +56,7 @@ export const createAppointment = actionClient
       patientId: parsedInput.patientId,
       doctorId: parsedInput.doctorId,
       date: appointmentDateTime,
+      appointmentPriceInCents: parsedInput.appointmentPriceInCents,
     });
 
     revalidatePath("/appointments");

@@ -29,7 +29,7 @@ export const deleteDoctor = actionClient
     if (!doctor) {
       throw new Error("Médico não encontrado");
     }
-    if (doctor.clinicId !== session.user.clinic?.clinicId) {
+    if (doctor.clinicId !== session.user.clinic?.id) {
       throw new Error("Médico não encontrado");
     }
     await db.delete(doctorsTable).where(eq(doctorsTable.id, parsedInput.id));

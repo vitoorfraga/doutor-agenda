@@ -24,12 +24,14 @@ const PatientsPage = async () => {
     headers: await headers(),
   });
 
-  if (!session?.user?.clinic?.clinicId) {
+  console.log(session);
+
+  if (!session?.user?.clinic?.id) {
     redirect("/clinic-form");
   }
 
   const patients = await db.query.patientsTable.findMany({
-    where: eq(patientsTable.clinicId, session?.user.clinic?.clinicId),
+    where: eq(patientsTable.clinicId, session?.user.clinic?.id),
   });
 
   return (

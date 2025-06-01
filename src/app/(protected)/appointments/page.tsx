@@ -32,13 +32,13 @@ const AppointmentsPage = async () => {
 
   const [patients, doctors, appointments] = await Promise.all([
     db.query.patientsTable.findMany({
-      where: eq(patientsTable.clinicId, session.user.clinic.clinicId),
+      where: eq(patientsTable.clinicId, session.user.clinic.id),
     }),
     db.query.doctorsTable.findMany({
-      where: eq(doctorsTable.clinicId, session.user.clinic.clinicId),
+      where: eq(doctorsTable.clinicId, session.user.clinic.id),
     }),
     db.query.appointmentsTable.findMany({
-      where: eq(appointmentsTable.clinicId, session.user.clinic.clinicId),
+      where: eq(appointmentsTable.clinicId, session.user.clinic.id),
       with: {
         patient: {
           columns: {

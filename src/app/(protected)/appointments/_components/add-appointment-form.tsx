@@ -137,7 +137,8 @@ const AddAppointmentForm = ({
       toast.success("Agendamento criado com sucesso.");
       onSuccess?.();
     },
-    onError: () => {
+    onError: (err) => {
+      console.log(err);
       toast.error("Erro ao criar agendamento.");
     },
   });

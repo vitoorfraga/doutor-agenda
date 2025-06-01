@@ -23,12 +23,12 @@ const DoctorsPage = async () => {
     headers: await headers(),
   });
 
-  if (!session?.user?.clinic?.clinicId) {
+  if (!session?.user?.clinic?.id) {
     redirect("/clinic-form");
   }
 
   const doctors = await db.query.doctorsTable.findMany({
-    where: eq(doctorsTable.clinicId, session?.user.clinic?.clinicId),
+    where: eq(doctorsTable.clinicId, session?.user.clinic?.id),
   });
 
   return (

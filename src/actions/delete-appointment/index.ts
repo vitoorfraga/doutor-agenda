@@ -29,7 +29,7 @@ export const deleteAppointment = actionClient
     if (!appointment) {
       throw new Error("Agendamento não encontrado");
     }
-    if (appointment.clinicId !== session.user.clinic?.clinicId) {
+    if (appointment.clinicId !== session.user.clinic?.id) {
       throw new Error("Agendamento não encontrado");
     }
 

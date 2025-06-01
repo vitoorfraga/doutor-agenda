@@ -39,7 +39,7 @@ export const upsertDoctor = actionClient
       throw new Error("Usuário não autenticado.");
     }
 
-    if (!session?.user?.clinic?.clinicId) {
+    if (!session?.user?.clinic?.id) {
       throw new Error("Clínica não encontrada.");
     }
 
@@ -48,7 +48,7 @@ export const upsertDoctor = actionClient
       .values({
         ...parsedInput,
         id: parsedInput.id,
-        clinicId: session?.user?.clinic?.clinicId,
+        clinicId: session?.user?.clinic?.id,
         availableFromTime: availableFromTimeUTC.format("HH:mm:ss"),
         availableToTime: availableToTimeUTC.format("HH:mm:ss"),
       })
