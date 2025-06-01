@@ -3,12 +3,14 @@
 import { DropdownMenuItem } from "@radix-ui/react-dropdown-menu";
 import {
   CalendarDays,
+  Gem,
   LayoutDashboard,
   LogOut,
   Stethoscope,
   UsersRound,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
@@ -92,13 +94,32 @@ export const AppSidebar = () => {
               {items.map((item) => (
                 <SidebarMenuItem key={item.title}>
                   <SidebarMenuButton asChild isActive={pathname === item.url}>
-                    <a href={item.url}>
+                    <Link href={item.url}>
                       <item.icon />
                       <span>{item.title}</span>
-                    </a>
+                    </Link>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+
+        <SidebarGroup>
+          <SidebarGroupLabel>Outros</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  isActive={pathname === "/subscription"}
+                  asChild
+                >
+                  <Link href="/subscription">
+                    <Gem />
+                    <span>Assinatura</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
             </SidebarMenu>
           </SidebarGroupContent>
         </SidebarGroup>
@@ -115,7 +136,8 @@ export const AppSidebar = () => {
                   </Avatar>
                   <div>
                     <p className="text-sm">
-                      {session?.data?.user?.clinic?.clinicName}
+                      {session?.data?.user?.clinic?.name ||
+                        "Não possui clínica"}
                     </p>
                     <p className="text-muted-foreground text-sm">
                       {session?.data?.user?.email}
