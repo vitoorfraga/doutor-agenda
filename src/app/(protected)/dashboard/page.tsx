@@ -1,9 +1,12 @@
 import dayjs from "dayjs";
 import { and, count, desc, eq, gte, lte, sql, sum } from "drizzle-orm";
+import { Calendar } from "lucide-react";
 import { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { DataTable } from "@/components/ui/data-table";
 import {
   PageActions,
   PageContainer,
@@ -22,11 +25,13 @@ import {
 } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
+import { appointmentsTableColumns } from "../appointments/_components/appointments-table-columns";
 import { StatsCards } from "../appointments/_components/stats-card";
 import { AppointmentsChart } from "./_components/appointments-chart";
 // import { StatsCards } from "../appointments/_components/stats-card";
 import { DatePicker } from "./_components/date-picker";
 import { TopDoctors } from "./_components/top-doctors";
+import TopSpecialties from "./_components/top-specialties";
 
 export const metadata: Metadata = {
   title: "Dashboard | Doutor Agenda",
@@ -70,6 +75,8 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
     [totalPatients],
     [totalDoctors],
     topDoctors,
+    topSpecialties,
+    todayAppointments,
   ] = await Promise.all([
     db
       .select({
@@ -133,6 +140,39 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
       .groupBy(doctorsTable.id)
       .orderBy(desc(count(appointmentsTable.id)))
       .limit(10),
+    db
+      .select({
+        specialty: doctorsTable.specialty,
+        appointments: count(appointmentsTable.id),
+      })
+      .from(appointmentsTable)
+      .innerJoin(doctorsTable, eq(appointmentsTable.doctorId, doctorsTable.id))
+      .where(
+        and(
+          eq(
+            appointmentsTable.clinicId,
+            session.user.clinic?.id || clinics[0].clinicId,
+          ),
+          gte(appointmentsTable.date, new Date(from)),
+          lte(appointmentsTable.date, new Date(to)),
+        ),
+      )
+      .groupBy(doctorsTable.specialty)
+      .orderBy(desc(count(appointmentsTable.id))),
+    db.query.appointmentsTable.findMany({
+      where: and(
+        eq(
+          appointmentsTable.clinicId,
+          session.user.clinic?.id || clinics[0].clinicId,
+        ),
+        gte(appointmentsTable.date, new Date()),
+        lte(appointmentsTable.date, new Date()),
+      ),
+      with: {
+        patient: true,
+        doctor: true,
+      },
+    }),
   ]);
 
   const chartStartDate = dayjs().subtract(10, "days").startOf("day").toDate();
@@ -196,6 +236,26 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
         <div className="grid grid-cols-[2.24fr_1fr] gap-4">
           <AppointmentsChart dailyAppointmentsData={dailyAppointmentsData} />
           <TopDoctors doctors={topDoctors} />
+        </div>
+
+        <div className="grid grid-cols-[2.24fr_1fr] gap-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center gap-3">
+                <Calendar className="text-muted-foreground" />
+                <CardTitle className="text-base">
+                  Agendamentos de hoje
+                </CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <DataTable
+                columns={appointmentsTableColumns}
+                data={todayAppointments}
+              />
+            </CardContent>
+          </Card>
+          <TopSpecialties topSpecialties={topSpecialties} />
         </div>
       </PageContent>
     </PageContainer>
