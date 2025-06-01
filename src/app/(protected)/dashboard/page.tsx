@@ -3,11 +3,20 @@ import { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
+import {
+  PageActions,
+  PageContainer,
+  PageContent,
+  PageDescription,
+  PageHeader,
+  PageHeaderContent,
+  PageTitle,
+} from "@/components/ui/page-container";
 import { db } from "@/db";
 import { usersToClinicsTable } from "@/db/schema";
 import { auth } from "@/lib/auth";
 
-import { SignOutButton } from "./_components/sign-out-button";
+import { DatePicker } from "./_components/date-picker";
 
 export const metadata: Metadata = {
   title: "Dashboard | Doutor Agenda",
@@ -33,10 +42,19 @@ const DashboardPage = async () => {
   }
 
   return (
-    <>
-      <h1>{session?.user.email}</h1>
-      <SignOutButton />
-    </>
+    <PageContainer>
+      <PageHeader>
+        <PageHeaderContent>
+          <PageTitle>Médicos</PageTitle>
+          <PageDescription>Gerencie os médicos em sua clínica.</PageDescription>
+        </PageHeaderContent>
+
+        <PageActions>
+          <DatePicker />
+        </PageActions>
+      </PageHeader>
+      <PageContent>conteudo</PageContent>
+    </PageContainer>
   );
 };
 
